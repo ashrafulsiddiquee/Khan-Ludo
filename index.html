@@ -305,7 +305,7 @@ let AC,mute=false;try{mute=localStorage.getItem('ludo-mute')=='1'}catch(e){}
 function ac(){if(mute)return null;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();return AC}catch(e){return null}}
 function tone(f,d,type='sine',v=.15,at=0,f2){const a=ac();if(!a)return;const t=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}
 let lastRoll=0;
-function diceRoll(){const n=Date.now();if(n-lastRoll<500)return;lastRoll=n;tone(210,.09,'sine',.1,.45,120)} // one soft tap when the dice land
+function diceRoll(){const n=Date.now();if(n-lastRoll<500)return;lastRoll=n;[0,.13,.27].forEach((at,i)=>tone(300+i*40,.07,'sine',.12-i*.025,at,200))} // three soft taps
 const sfx={roll:diceRoll,step:()=>tone(520,.07,'triangle',.2,0,330),press:()=>tone(800,.05,'square',.05),cap:()=>tone(400,.28,'sawtooth',.12,0,90),home:()=>[660,880,1100].forEach((f,i)=>tone(f,.18,'sine',.15,i*.09)),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.18,i*.14))};
 function sdl(){$('sd').textContent=mute?'🔇 Sound off':'🔊 Sound on'}
 $('sd').onclick=()=>{mute=!mute;try{localStorage.setItem('ludo-mute',mute?'1':'0')}catch(e){}sdl()};sdl();
