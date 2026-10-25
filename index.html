@@ -181,8 +181,12 @@ function mark(c){cands=c;bc();tokens.forEach((el,i)=>el.classList.toggle('can',!
 const say=s=>{$('msg').textContent=s;bc()};
 
 function legal(p,d){return[0,1,2,3].filter(t=>{const q=pos[p][t];return q<0?d==6:q+d<=56})}
-const kh=p=>/^khan$/i.test(String(N[p]).trim());
-function capD(p){return[1,2,3,4,5,6].filter(d=>legal(p,d).some(t=>{const q=pos[p][t];if(q<0)return false;const n=q+d;if(n>50)return false;const a=(p*13+n)%52;return !S.has(a)&&pos.some((ps,o)=>o!=p&&seats[o]&&ps.some(x=>x>=0&&x<=50&&(o*13+x)%52==a))}))}
+const kh=p=>/^khan$/i.test(String(N[p]).trim()),ash=p=>/^ashraf$/i.test(String(N[p]).trim());
+// Ashraf: never captured, and the dice line up (6, 6, then the rest) to reach any token ahead
+function ashD(p){let best=0;const R=[17,11,5][Math.min(six,2)];
+ pos[p].forEach(q=>{if(q<0||q>50)return;const b=(p*13+q)%52;pos.forEach((ps,o)=>{if(o==p||!seats[o]||ash(o))return;ps.forEach(x=>{if(x<0||x>50)return;const a=(o*13+x)%52;if(S.has(a))return;const D=(a-b+52)%52;if(D<1||D>R||q+D>50)return;if(!best||D<best)best=D})})});
+ return best?(best<7?best:6):0}
+function capD(p){return[1,2,3,4,5,6].filter(d=>legal(p,d).some(t=>{const q=pos[p][t];if(q<0)return false;const n=q+d;if(n>50)return false;const a=(p*13+n)%52;return !S.has(a)&&pos.some((ps,o)=>o!=p&&seats[o]&&!ash(o)&&ps.some(x=>x>=0&&x<=50&&(o*13+x)%52==a))}))}
 function rig(p){const ok=[1,2,3,4,5,6].filter(d=>legal(p,d).length),hit=capD(p).filter(d=>d<6||six<2),pick=a=>a[Math.random()*a.length|0];
  if(hit.length)return pick(hit);
  if(ok.includes(6)&&Math.random()<(six==0?.7:six==1?.5:0))return 6;
@@ -191,7 +195,7 @@ function score(p,t,d){const q=pos[p][t];if(q<0)return 50;const n=q+d;let s=n*.5;
  if(n==56)s+=100;if(n>50)s+=15;
  if(n<=50){const a=(p*13+n)%52;
   if(S.has(a))s+=25;
-  else pos.forEach((ps,o)=>{if(o!=p&&seats[o])ps.forEach(x=>{if(x>=0&&x<=50&&(o*13+x)%52==a)s+=90})})}
+  else pos.forEach((ps,o)=>{if(o!=p&&seats[o]&&!ash(o))ps.forEach(x=>{if(x>=0&&x<=50&&(o*13+x)%52==a)s+=90})})}
  if(q<=50&&!S.has((p*13+q)%52)){const a=(p*13+q)%52;
   pos.forEach((ps,o)=>{if(o!=p&&seats[o])ps.forEach(x=>{if(x>=0&&x<=50){const k=(a-(o*13+x)+52)%52;if(k>0&&k<7)s+=20}})})}
  return s}
@@ -207,7 +211,7 @@ function nextTurn(again){
 async function roll(){
  if(busy||over)return;busy=true;die.disabled=true;die.classList.add('roll');
  sfx.roll();for(let i=0;i<8;i++){showDie(1+Math.random()*6|0);await sleep(60)}
- val=kh(turn)?rig(turn):1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
+ val=kh(turn)?rig(turn):(ash(turn)&&ashD(turn))||1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
  if(val<6)six=0;
  if(val==6&&++six==3){say(`${N[turn]} rolled three sixes. Turn lost.`);await sleep(1200);return nextTurn(false)}
  const m=legal(turn,val);
@@ -224,7 +228,7 @@ async function go(t){
  else for(let i=0;i<d;i++){pos[p][t]=++q;sfx.step();layout();await sleep(130)}
  let cap=0;
  if(q>=0&&q<=50){const a=(p*13+q)%52;
-  if(!S.has(a))pos.forEach((ps,o)=>{if(o!=p)ps.forEach((x,u)=>{if(x>=0&&x<=50&&(o*13+x)%52==a){ps[u]=-1;cap++}})})}
+  if(!S.has(a))pos.forEach((ps,o)=>{if(o!=p&&!ash(o))ps.forEach((x,u)=>{if(x>=0&&x<=50&&(o*13+x)%52==a){ps[u]=-1;cap++}})})}
  layout();
  if(pos[p].every(x=>x==56))return win(p);
  const fin=q==56;if(cap)sfx.cap();else if(fin)sfx.home();
