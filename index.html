@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ludo – Free 4-Player Ludo King Style Game Online</title>
+<meta name="description" content="Play Ludo online for free in your browser. 4-player Ludo King style rules: play with friends on one device or against bots. Works on mobile, iPad and laptop, with no download or sign-up.">
+<meta name="keywords" content="ludo, ludo online, ludo king, ludo game, 4 player ludo, board game, free browser game">
+<meta name="author" content="Md Ashraful Hakim Khan Siddiquee">
+<meta name="copyright" content="Md Ashraful Hakim Khan Siddiquee">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0b3a8f">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ludo – Free 4-Player Ludo King Style Game Online">
+<meta property="og:description" content="Play Ludo online for free in your browser. 4-player Ludo King style rules: play with friends on one device or against bots. Works on mobile, iPad and laptop, with no download or sign-up.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ludo – Free 4-Player Ludo King Style Game Online">
+<meta name="twitter:description" content="Play Ludo online for free in your browser. 4-player Ludo King style rules: play with friends on one device or against bots. Works on mobile, iPad and laptop, with no download or sign-up.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='32' height='32' fill='%23ed1c24'/%3E%3Crect x='32' width='32' height='32' fill='%2300a14b'/%3E%3Crect x='32' y='32' width='32' height='32' fill='%23ffde17'/%3E%3Crect y='32' width='32' height='32' fill='%231b9be0'/%3E%3Ccircle cx='32' cy='32' r='13' fill='%23fff'/%3E%3C/svg%3E">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Ludo","description":"Play Ludo online for free in your browser. 4-player Ludo King style rules: play with friends on one device or against bots. Works on mobile, iPad and laptop, with no download or sign-up.","genre":"Board game","playMode":["SinglePlayer","MultiPlayer"],"numberOfPlayers":{"@type":"QuantitativeValue","minValue":2,"maxValue":4},"gamePlatform":"Web browser","applicationCategory":"Game","inLanguage":"en","author":{"@type":"Person","name":"Md Ashraful Hakim Khan Siddiquee"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
+<style>
+:root{--ink:#fff;--mut:#aab4c0}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);font:16px/1.4 "Trebuchet MS",system-ui,sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:12px 8px 16px;background:repeating-linear-gradient(60deg,rgba(255,255,255,.05) 0 38px,transparent 38px 76px),linear-gradient(160deg,#0b3a8f,#1f78d1 55%,#0a2f78) fixed}
+#game{--w:min(96vw,calc((100dvh - 90px)/1.9));--u:var(--w);width:var(--w);display:flex;flex-direction:column;gap:calc(var(--w)*.02)}
+.r2{display:flex;justify-content:space-between}
+.pw{width:48%;display:flex;flex-direction:column;gap:4px}
+.pw.tp{flex-direction:column-reverse}
+.nm{font-weight:700;font-size:calc(var(--u)*.045);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;text-shadow:0 1px 2px #000}
+.tp .nm{transform:rotate(180deg);text-align:right}
+.pn{display:flex;align-items:center;justify-content:space-between;padding:calc(var(--u)*.018) calc(var(--u)*.03);border:3px solid #f5c518;border-radius:10px;background:linear-gradient(90deg,#0a46c8 35%,#a9d6dc)}
+.pn.rv{flex-direction:row-reverse;background:linear-gradient(270deg,#0a46c8 35%,#a9d6dc)}
+.pn.act{box-shadow:0 0 0 3px #fff,0 0 18px 5px #ffd54a}
+.av{width:calc(var(--u)*.1)}
+.av svg,.t svg{width:100%;display:block}
+.db{width:calc(var(--u)*.2);aspect-ratio:1;background:linear-gradient(#f8e8ea,#dca3a8);border:3px solid #f2c3c8;border-radius:9px;padding:11%}
+.dd{display:grid;grid:repeat(3,1fr)/repeat(3,1fr);width:100%;height:100%;padding:12%;border:0;border-radius:14%;background:radial-gradient(#fff,#cfcfcf);box-shadow:0 2px 4px rgba(0,0,0,.4);cursor:default}
+.dd i{border-radius:50%}
+.dd i.on{background:#111}
+.pn:not(.act) .dd.e{visibility:hidden}
+.pn:not(.act) .dd{opacity:.45}
+.pn.act .dd:not(:disabled){cursor:pointer;animation:bn .5s infinite alternate}
+.dd.roll{animation:sh .12s infinite!important}
+@keyframes sh{50%{transform:rotate(10deg) scale(1.06)}}
+#board{position:relative;width:100%;aspect-ratio:1;background:#fff;border:3px solid #fff;box-shadow:0 4px 14px rgba(0,0,0,.5);display:grid;grid-template:repeat(15,1fr)/repeat(15,1fr);overflow:hidden;font-size:calc(var(--w)*.05)}
+.c{border:.5px solid #b9b9b9;display:flex;align-items:center;justify-content:center;color:#777;line-height:1;font-weight:700}
+.y{position:relative}
+.y::after{content:"";position:absolute;inset:14%;background:#fff;border:1px solid rgba(0,0,0,.25)}
+#home{grid-area:7/7/10/10;background:conic-gradient(from -45deg,#00a14b 0 25%,#ffde17 0 50%,#1b9be0 0 75%,#ed1c24 0)}
+.sp{position:absolute;width:6%;aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%)}
+.t{position:absolute;width:6.6%;aspect-ratio:2/3;padding:0;border:0;background:none;transform:translate(-50%,-83.3%) scale(var(--s,1));transform-origin:50% 83.3%;transition:left .13s linear,top .13s linear,transform .13s;cursor:default}
+.t svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.t.can{cursor:pointer;z-index:40!important}
+.t.can svg{animation:bn .5s infinite alternate}
+@keyframes bn{to{transform:translateY(-12%);filter:drop-shadow(0 0 5px #fff)}}
+#msg{text-align:center;min-height:2.8em;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 2px #000}
+#ov{position:fixed;inset:0;background:rgba(6,14,36,.85);display:flex;align-items:center;justify-content:center;z-index:50}
+#ov.off{display:none}
+.card{background:#16306b;border:3px solid #f5c518;padding:20px;border-radius:14px;width:min(92vw,390px)}
+.card h2{margin:0 0 6px}
+.rules{color:#c3cde0;font-size:13px;margin:0 0 8px}
+.row{display:flex;align-items:center;gap:8px;margin:10px 0}
+.sw{width:18px;height:18px;border-radius:50%;flex:none}
+input,select{font:inherit;padding:7px 8px;background:#0c1f4d;color:inherit;border:1px solid #3d5a9e;border-radius:8px}
+input{flex:1;min-width:0}
+input:disabled{opacity:.6}
+.go{width:100%;padding:12px;font:inherit;font-weight:700;border:0;border-radius:10px;background:#f5c518;color:#1c1c1c;cursor:pointer;margin-top:6px}
+#err{color:#ff9a90;margin:8px 0 0;min-height:1.4em}
+hr{width:min(96vw,520px);border:0;border-top:1px solid rgba(255,255,255,.25);margin:16px 0 10px}
+footer{color:var(--mut);font-size:13px;text-align:center}
+@media (min-aspect-ratio:5/4){
+#game{--pw:clamp(150px,20vw,260px);--w:min(calc(100dvh - 130px),calc(100vw - 2*var(--pw) - 48px));--u:calc(var(--pw)/.48);width:auto;display:grid;grid-template-columns:var(--pw) var(--w) var(--pw);grid-template-rows:auto 1fr auto auto;column-gap:16px}
+.r2{display:contents}
+.pw{width:auto}
+.pw.tp{flex-direction:column}
+.tp .nm{transform:none;text-align:left}
+#board{grid-column:2;grid-row:1/4}
+#msg{grid-column:2;grid-row:4}
+.p0{grid-column:1;grid-row:1;align-self:start}
+.p3{grid-column:1;grid-row:3;align-self:end}
+.p1{grid-column:3;grid-row:1;align-self:start}
+.p2{grid-column:3;grid-row:3;align-self:end}
+}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.ab{width:min(96vw,520px);margin-top:14px;color:#c3cde0;font-size:14px}
+.ab summary{cursor:pointer;font-weight:700;color:#fff}
+.ab h2{font-size:15px;margin:12px 0 4px;color:#fff}
+.ab p,.ab li{margin:4px 0}
+</style>
+</head>
+<body>
+<h1 class="sr">Ludo – free 4-player Ludo King style board game</h1>
+<div id="game">
+ <div class="r2" id="top"></div>
+ <div id="board"></div>
+ <div class="r2" id="bot"></div>
+ <div id="msg"></div>
+</div>
+<div id="ov"></div>
+<details class="ab"><summary>About and how to play</summary>
+<h2>Free online Ludo for 2 to 4 players</h2>
+<p>Play Ludo in your browser on a phone, iPad or laptop. Choose Human or Bot for each color, name the human players, and play pass-and-play on one device or against the computer. No download, no sign-up.</p>
+<h2>Ludo King style rules</h2>
+<ul><li>Roll a 6 to bring a token out of the yard.</li><li>A 6, a capture, or getting a token home gives you another roll.</li><li>Three 6s in a row lose your turn.</li><li>Stars and start squares are safe squares.</li><li>You need an exact roll to reach home.</li><li>The first player to bring all 4 tokens home wins.</li></ul>
+</details>
+<hr>
+<footer>Copyright © Md Ashraful Hakim Khan Siddiquee · Free for noncommercial use</footer>
+<script>
+const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const CN=['Red','Green','Yellow','Blue'],COL=['#ed1c24','#00a14b','#ffde17','#1b9be0'];
+let N=['Player 1','Bot 1','Bot 2','Bot 3'];
+const P=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]];
+const H=[i=>[7,1+i],i=>[1+i,7],i=>[7,13-i],i=>[13-i,7]];
+const S=new Set([0,13,26,39,8,21,34,47]);
+const Y0=[[0,0],[0,9],[9,9],[9,0]],FIN=[[-.7,0],[0,-.7],[.7,0],[0,.7]];
+const ARR={50:['→',0],11:['↓',1],24:['←',2],37:['↑',3]};
+const PIP={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+const B=$('board');
+let seats=['h','b','b','b'],custom=['','','',''],pos,turn,six,busy,val,over,cands,die;
+
+const pin=c=>`<svg viewBox="0 0 40 60"><ellipse cx="20" cy="50" rx="15" ry="8" fill="${c}" stroke="#7a1f1f" stroke-width="3"/><path d="M20 53C12 42 3 34 3 21a17 17 0 0 1 34 0c0 13-9 21-17 32z" fill="#f2f2f2" stroke="#999" stroke-width="1.5"/><circle cx="20" cy="20" r="10" fill="${c}"/><circle cx="17" cy="16" r="3.5" fill="#fff" opacity=".55"/></svg>`;
+function cell(r,c,bg,txt,col){const d=document.createElement('div');d.className='c';d.style.gridArea=`${r+1}/${c+1}`;if(bg)d.style.background=bg;if(txt)d.textContent=txt;if(col)d.style.color=col;B.appendChild(d)}
+Y0.forEach(([r,c],p)=>{const d=document.createElement('div');d.className='y';d.style.gridArea=`${r+1}/${c+1}/${r+7}/${c+7}`;d.style.background=COL[p];B.appendChild(d)});
+const hm=document.createElement('div');hm.id='home';B.appendChild(hm);
+P.forEach(([r,c],i)=>{const k=[0,13,26,39].indexOf(i),a=ARR[i];
+ cell(r,c,k>=0?COL[k]:'',a?a[0]:(S.has(i)&&k<0?'☆':''),a?COL[a[1]]:'')});
+for(let p=0;p<4;p++)for(let i=0;i<5;i++){const[r,c]=H[p](i);cell(r,c,COL[p])}
+const yxy=(p,t)=>{const[r,c]=Y0[p];return[c+3+(t%2?1.2:-1.2),r+3+(t>1?1.2:-1.2)]};
+for(let p=0;p<4;p++)for(let t=0;t<4;t++){const[x,y]=yxy(p,t),s=document.createElement('div');s.className='sp';s.style.background=COL[p];s.style.left=x/15*100+'%';s.style.top=y/15*100+'%';B.appendChild(s)}
+const tokens=[];
+for(let i=0;i<16;i++){const b=document.createElement('button');b.className='t';b.innerHTML=pin(COL[i>>2]);b.setAttribute('aria-label',`${CN[i>>2]} token ${(i&3)+1}`);
+ b.onclick=()=>{if(cands&&cands.includes(i&3)&&(i>>2)==turn){const t=i&3;cands=null;go(t)}};B.appendChild(b);tokens.push(b)}
+
+// player panels: red top-left, green top-right, blue bottom-left, yellow bottom-right
+const dies=[],pans=[],nl=[];
+[[0,'top',1],[1,'top',1],[3,'bot',0],[2,'bot',0]].forEach(([p,par,tp])=>{
+ const w=document.createElement('div');w.className='pw p'+p+(tp?' tp':'');
+ w.innerHTML=`<div class=nm></div><div class="pn${p==1||p==2?' rv':''}"><div class=av>${pin(COL[p])}</div><div class=db><button class="dd e" disabled aria-label="Roll the dice">${'<i></i>'.repeat(9)}</button></div></div>`;
+ $(par).appendChild(w);nl[p]=w.firstChild;pans[p]=w.lastChild;dies[p]=w.querySelector('.dd');dies[p].onclick=roll});
+function showDie(v,d=die){const on=PIP[v];d.classList.toggle('e',!v);[...d.children].forEach((e,i)=>e.className=on.includes(i)?'on':'')}
+
+function xy(p,t){const q=pos[p][t];
+ if(q<0)return yxy(p,t);
+ if(q<=50){const[r,c]=P[(p*13+q)%52];return[c+.5,r+.5]}
+ if(q<56){const[r,c]=H[p](q-51);return[c+.5,r+.5]}
+ return[7.5+FIN[p][0],7.5+FIN[p][1]]}
+function layout(){const g={},pt=[];
+ tokens.forEach((el,i)=>{const[x,y]=xy(i>>2,i&3),k=x+','+y;(g[k]=g[k]||[]).push(i);pt[i]=[x,y,k]});
+ const O=[[-.2,-.2],[.2,-.2],[-.2,.2],[.2,.2]];
+ tokens.forEach((el,i)=>{const[x,y,k]=pt[i],a=g[k],n=a.length,j=a.indexOf(i);let dx=0,dy=0,s=1;
+  if(n>1){s=.7;[dx,dy]=O[j%4];dx+=(j>>2)*.06}
+  if(pos[i>>2][i&3]==56)s=Math.min(s,.6);
+  el.style.left=(x+dx)/15*100+'%';el.style.top=(y+dy)/15*100+'%';el.style.setProperty('--s',s);el.style.zIndex=5+Math.round(y+dy)})}
+function mark(c){cands=c;tokens.forEach((el,i)=>el.classList.toggle('can',!!c&&(i>>2)==turn&&c.includes(i&3)))}
+const say=s=>$('msg').textContent=s;
+
+function legal(p,d){return[0,1,2,3].filter(t=>{const q=pos[p][t];return q<0?d==6:q+d<=56})}
+function score(p,t,d){const q=pos[p][t];if(q<0)return 50;const n=q+d;let s=n*.5;
+ if(n==56)s+=100;if(n>50)s+=15;
+ if(n<=50){const a=(p*13+n)%52;
+  if(S.has(a))s+=25;
+  else pos.forEach((ps,o)=>{if(o!=p&&seats[o])ps.forEach(x=>{if(x>=0&&x<=50&&(o*13+x)%52==a)s+=90})})}
+ if(q<=50&&!S.has((p*13+q)%52)){const a=(p*13+q)%52;
+  pos.forEach((ps,o)=>{if(o!=p&&seats[o])ps.forEach(x=>{if(x>=0&&x<=50){const k=(a-(o*13+x)+52)%52;if(k>0&&k<7)s+=20}})})}
+ return s}
+
+function nextTurn(again){
+ if(!again){six=0;do turn=(turn+1)%4;while(!seats[turn])}
+ busy=false;const h=seats[turn]=='h';die=dies[turn];if(die.classList.contains('e'))showDie(1);
+ pans.forEach((e,i)=>e.classList.toggle('act',i==turn));
+ dies.forEach((d,i)=>d.disabled=!(i==turn&&h));
+ say(h?`${N[turn]}, roll the dice`:`${N[turn]} is rolling`);
+ if(!h)setTimeout(roll,800)}
+
+async function roll(){
+ if(busy||over)return;busy=true;die.disabled=true;die.classList.add('roll');
+ for(let i=0;i<8;i++){showDie(1+Math.random()*6|0);await sleep(60)}
+ val=1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
+ if(val<6)six=0;
+ if(val==6&&++six==3){say(`${N[turn]} rolled three sixes. Turn lost.`);await sleep(1200);return nextTurn(false)}
+ const m=legal(turn,val);
+ if(!m.length){say(`${N[turn]} rolled ${val}. No move.`);await sleep(1000);return nextTurn(val==6)}
+ const same=m.every(t=>pos[turn][t]==pos[turn][m[0]]);
+ if(m.length==1||same){say(`${N[turn]} rolled ${val}`);await sleep(350);return go(m[0])}
+ if(seats[turn]=='b'){say(`${N[turn]} rolled ${val}`);await sleep(600);
+  return go(m.reduce((a,b)=>score(turn,b,val)>score(turn,a,val)?b:a))}
+ say(`${N[turn]}, you rolled ${val}. Tap a token to move.`);mark(m)}
+
+async function go(t){
+ mark(null);const p=turn,d=val;let q=pos[p][t];
+ if(q<0){q=0;pos[p][t]=0;layout();await sleep(250)}
+ else for(let i=0;i<d;i++){pos[p][t]=++q;layout();await sleep(130)}
+ let cap=0;
+ if(q>=0&&q<=50){const a=(p*13+q)%52;
+  if(!S.has(a))pos.forEach((ps,o)=>{if(o!=p)ps.forEach((x,u)=>{if(x>=0&&x<=50&&(o*13+x)%52==a){ps[u]=-1;cap++}})})}
+ layout();
+ if(pos[p].every(x=>x==56))return win(p);
+ const fin=q==56;
+ if(cap)say(`${N[p]} captured ${cap} token${cap>1?'s':''}! Roll again.`);
+ else if(fin)say(`${N[p]} got a token home! Roll again.`);
+ else if(d==6)say(`${N[p]} rolled a six. Roll again.`);
+ await sleep(cap||fin?800:300);
+ nextTurn(d==6||cap>0||fin)}
+
+function win(p){over=true;dies.forEach(d=>d.disabled=true);say(`${N[p]} wins!`);
+ $('ov').className='';$('ov').innerHTML=`<div class=card><h2 style="color:${COL[p]}"></h2><p class=rules>All four tokens reached home.</p><button class=go id=again>New game</button></div>`;
+ $('ov').querySelector('h2').textContent=N[p]+' wins';$('again').onclick=setup}
+
+function start(){
+ pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);turn=-1;six=0;over=false;busy=false;cands=null;
+ dies.forEach(d=>showDie(0,d));
+ [0,1,2,3].forEach(i=>{nl[i].textContent=N[i];pans[i].parentElement.style.visibility=seats[i]?'':'hidden'});
+ $('ov').className='off';layout();mark(null);nextTurn(false)}
+
+function ref(){let h=0,b=0;[0,1,2,3].forEach(i=>{const v=$('s'+i).value,e=$('n'+i);
+ if(v=='h'){e.disabled=false;e.placeholder='Player '+(++h)}
+ else{e.disabled=true;e.value='';e.placeholder=v=='b'?'Bot '+(++b):'Off'}})}
+function setup(){
+ $('ov').className='';
+ $('ov').innerHTML=`<div class=card><h2>Ludo</h2><p class=rules>Choose who plays each color. Humans can type a name. Rules: roll a 6 to leave the yard. A six, a capture or a token reaching home gives another roll. Three sixes in a row lose the turn. Stars and start squares are safe. Home needs an exact roll.</p>${[0,1,2,3].map(i=>`<div class=row><span class=sw style="background:${COL[i]}"></span><input id=n${i} maxlength=14 aria-label="${CN[i]} name"><select id=s${i} aria-label="${CN[i]} player"><option value=h>Human<option value=b>Bot<option value=0>Off</select></div>`).join('')}<button class=go id=go>Start game</button><p id=err></p></div>`;
+ [0,1,2,3].forEach(i=>{const s=$('s'+i);s.value=seats[i]||'0';s.onchange=ref;});
+ ref();[0,1,2,3].forEach(i=>{if(seats[i]=='h')$('n'+i).value=custom[i]});
+ $('go').onclick=()=>{const v=[0,1,2,3].map(i=>$('s'+i).value);
+  if(v.filter(x=>x!='0').length<2){$('err').textContent='Pick at least two players.';return}
+  seats=v.map(x=>x=='0'?0:x);
+  custom=[0,1,2,3].map(i=>seats[i]=='h'?$('n'+i).value.trim():'');
+  N=[0,1,2,3].map(i=>custom[i]||$('n'+i).placeholder);
+  start()}}
+pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);layout();setup();
+</script>
+</body>
+</html>
