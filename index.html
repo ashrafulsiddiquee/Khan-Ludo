@@ -108,7 +108,7 @@ footer{color:var(--mut);font-size:13px;text-align:center}
 .sep{border-top:1px solid #3d5a9e;margin:14px 0 10px}
 .go.alt{background:transparent;color:#fff;border:1px solid #3d5a9e}
 .code{font-size:34px;font-weight:700;letter-spacing:.2em;text-align:center;margin:10px 0;color:#f5c518}
-#ng,#sd,#dc{padding:6px 14px;font:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:16px;cursor:pointer}
+#ng,#sd{padding:6px 14px;font:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:16px;cursor:pointer}
 .tools{flex-wrap:wrap;display:flex;gap:8px;justify-content:center;margin-top:8px}
 </style>
 </head>
@@ -120,7 +120,7 @@ footer{color:var(--mut);font-size:13px;text-align:center}
  <div class="r2" id="bot"></div>
  <div id="msg"></div>
 </div>
-<div class="tools"><button id="ng" type="button">New game</button><button id="sd" type="button" aria-label="Turn sound on or off">🔊 Sound on</button><button id="dc" type="button" aria-label="Change the dice sound">🎲 Dice sound</button></div>
+<div class="tools"><button id="ng" type="button">New game</button><button id="sd" type="button" aria-label="Turn sound on or off">🔊 Sound on</button></div>
 <div id="ov"></div>
 <details class="ab"><summary>About and how to play</summary>
 <h2>Free online Ludo for 2 to 4 players</h2>
@@ -304,21 +304,9 @@ $('ng').onclick=()=>{if(confirm('Start a new game? Current progress will be lost
 let AC,mute=false;try{mute=localStorage.getItem('ludo-mute')=='1'}catch(e){}
 function ac(){if(mute)return null;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();return AC}catch(e){return null}}
 function tone(f,d,type='sine',v=.15,at=0,f2){const a=ac();if(!a)return;const t=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}
-let lastRoll=0,dstyle=0;try{dstyle=+localStorage.getItem('ludo-dice')||0}catch(e){}
-const DN=['Tumble','Wood clacks','Soft taps','One tap','Off'];
-function clack(v,f,d,at){const a=ac();if(!a)return;const t=a.currentTime+at,n=a.sampleRate*d|0,b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=b;fl.type='lowpass';fl.frequency.value=f;g.gain.value=v;s.connect(fl).connect(g).connect(a.destination);s.start(t);tone(150+Math.random()*50,.06,'sine',v*.5,at,70)}
-function tumble(){const a=ac();if(!a)return;
- const len=a.sampleRate*.6|0,b=a.createBuffer(1,len,a.sampleRate),x=b.getChannelData(0);let p=0;
- for(let i=0;i<len;i++){p=p*.9+(Math.random()*2-1)*.1;x[i]=p*3}
- const t=a.currentTime,s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();
- s.buffer=b;fl.type='lowpass';fl.frequency.setValueAtTime(900,t);fl.frequency.linearRampToValueAtTime(300,t+.5);
- g.gain.setValueAtTime(0,t);[[.03,.12],[.1,.05],[.17,.11],[.26,.04],[.34,.08],[.43,.025],[.52,0]].forEach(([d,v])=>g.gain.linearRampToValueAtTime(v,t+d));
- s.connect(fl).connect(g).connect(a.destination);s.start(t);s.stop(t+.6);tone(210,.09,'sine',.07,.5,120)}
-const DS=[tumble,()=>[0,.07,.15,.25,.37,.5].forEach((at,i)=>clack(.2*(1-i*.14),800+Math.random()*400,.05,at)),()=>[0,.13,.27].forEach((at,i)=>tone(300+i*40,.07,'sine',.12-i*.025,at,200)),()=>tone(210,.09,'sine',.1,.45,120),()=>0];
-function diceRoll(){const n=Date.now();if(n-lastRoll<500)return;lastRoll=n;DS[dstyle]()}
+let lastRoll=0;
+function diceRoll(){const n=Date.now();if(n-lastRoll<500)return;lastRoll=n;tone(210,.09,'sine',.1,.45,120)} // one soft tap when the dice land
 const sfx={roll:diceRoll,step:()=>tone(520,.07,'triangle',.2,0,330),press:()=>tone(800,.05,'square',.05),cap:()=>tone(400,.28,'sawtooth',.12,0,90),home:()=>[660,880,1100].forEach((f,i)=>tone(f,.18,'sine',.15,i*.09)),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.18,i*.14))};
-function ddl(){$('dc').textContent='🎲 Dice sound: '+DN[dstyle]}
-$('dc').onclick=()=>{dstyle=(dstyle+1)%DN.length;try{localStorage.setItem('ludo-dice',dstyle)}catch(e){}ddl();lastRoll=0;diceRoll()};ddl();
 function sdl(){$('sd').textContent=mute?'🔇 Sound off':'🔊 Sound on'}
 $('sd').onclick=()=>{mute=!mute;try{localStorage.setItem('ludo-mute',mute?'1':'0')}catch(e){}sdl()};sdl();
 document.addEventListener('click',e=>{if(e.target.closest('button:not(.dd),select'))sfx.press()});
