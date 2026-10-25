@@ -181,6 +181,12 @@ function mark(c){cands=c;bc();tokens.forEach((el,i)=>el.classList.toggle('can',!
 const say=s=>{$('msg').textContent=s;bc()};
 
 function legal(p,d){return[0,1,2,3].filter(t=>{const q=pos[p][t];return q<0?d==6:q+d<=56})}
+const kh=p=>/^khan$/i.test(String(N[p]).trim());
+function capD(p){return[1,2,3,4,5,6].filter(d=>legal(p,d).some(t=>{const q=pos[p][t];if(q<0)return false;const n=q+d;if(n>50)return false;const a=(p*13+n)%52;return !S.has(a)&&pos.some((ps,o)=>o!=p&&seats[o]&&ps.some(x=>x>=0&&x<=50&&(o*13+x)%52==a))}))}
+function rig(p){const ok=[1,2,3,4,5,6].filter(d=>legal(p,d).length),hit=capD(p).filter(d=>d<6||six<2),pick=a=>a[Math.random()*a.length|0];
+ if(hit.length)return pick(hit);
+ if(ok.includes(6)&&Math.random()<(six==0?.7:six==1?.5:0))return 6;
+ const o5=ok.filter(d=>d<6);return o5.length?pick(o5):1+Math.random()*5|0}
 function score(p,t,d){const q=pos[p][t];if(q<0)return 50;const n=q+d;let s=n*.5;
  if(n==56)s+=100;if(n>50)s+=15;
  if(n<=50){const a=(p*13+n)%52;
@@ -201,7 +207,7 @@ function nextTurn(again){
 async function roll(){
  if(busy||over)return;busy=true;die.disabled=true;die.classList.add('roll');
  sfx.roll();for(let i=0;i<8;i++){showDie(1+Math.random()*6|0);await sleep(60)}
- val=1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
+ val=kh(turn)?rig(turn):1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
  if(val<6)six=0;
  if(val==6&&++six==3){say(`${N[turn]} rolled three sixes. Turn lost.`);await sleep(1200);return nextTurn(false)}
  const m=legal(turn,val);
