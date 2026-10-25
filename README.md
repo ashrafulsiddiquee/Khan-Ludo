@@ -8,7 +8,10 @@ Free 4-player Ludo game with **Ludo King style rules**. It runs in the browser f
 
 - 2 to 4 players: choose Human, Bot or Off for each color
 - Human players can type their own name (default Player 1, 2, 3; bots are Bot 1, 2, 3)
-- Pass-and-play on one device, or play against computer bots
+- Pass-and-play on one device, play against computer bots, or play online with friends using a 5-letter room code
+- A New game button during play
+- Sound effects for dice, token moves, captures and button presses, with a sound on/off button
+- Pinch and double-tap zoom are turned off so the board doesn't jump around on phones and tablets
 - Animated dice, token movement and captures
 - Responsive layout for mobile, iPad and laptop, in portrait and landscape
 - Single file, works offline once loaded
@@ -21,8 +24,6 @@ Free 4-player Ludo game with **Ludo King style rules**. It runs in the browser f
 - Stars and start squares are safe: tokens on them cannot be captured.
 - You need an exact roll to reach home.
 - The first player to bring all 4 tokens home wins.
-
-
 
 ## License
 

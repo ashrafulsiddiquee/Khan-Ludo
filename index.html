@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Ludo – Free 4-Player Ludo King Style Game Online</title>
 <meta name="description" content="Play Ludo online for free in your browser. 4-player Ludo King style rules: play with friends on one device or against bots. Works on mobile, iPad and laptop, with no download or sign-up.">
 <meta name="keywords" content="ludo, ludo online, ludo king, ludo game, 4 player ludo, board game, free browser game">
@@ -35,7 +35,10 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"VideoGame","name":"Ludo","description":"Play Ludo online for free in your browser. 4-player Ludo King style rules: play with friends on one device or against bots. Works on mobile, iPad and laptop, with no download or sign-up.","genre":"Board game","playMode":["SinglePlayer","MultiPlayer"],"numberOfPlayers":{"@type":"QuantitativeValue","minValue":2,"maxValue":4},"image":"https://ashrafulsiddiquee.github.io/Khan-Ludo/img/og-image.png","gamePlatform":"Web browser","applicationCategory":"Game","inLanguage":"en","author":{"@type":"Person","name":"Md Ashraful Hakim Khan Siddiquee"},"offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"}}</script>
 <style>
 :root{--ink:#fff;--mut:#aab4c0}
-*{box-sizing:border-box}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,button,select{touch-action:manipulation}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+input{-webkit-user-select:text;user-select:text}
 body{margin:0;color:var(--ink);font:16px/1.4 "Trebuchet MS",system-ui,sans-serif;min-height:100dvh;display:flex;flex-direction:column;align-items:center;padding:12px 8px 16px;background:repeating-linear-gradient(60deg,rgba(255,255,255,.05) 0 38px,transparent 38px 76px),linear-gradient(160deg,#0b3a8f,#1f78d1 55%,#0a2f78) fixed}
 #game{--w:min(96vw,calc((100dvh - 90px)/1.9));--u:var(--w);width:var(--w);display:flex;flex-direction:column;gap:calc(var(--w)*.02)}
 .r2{display:flex;justify-content:space-between}
@@ -105,7 +108,8 @@ footer{color:var(--mut);font-size:13px;text-align:center}
 .sep{border-top:1px solid #3d5a9e;margin:14px 0 10px}
 .go.alt{background:transparent;color:#fff;border:1px solid #3d5a9e}
 .code{font-size:34px;font-weight:700;letter-spacing:.2em;text-align:center;margin:10px 0;color:#f5c518}
-#ng{margin-top:8px;padding:6px 14px;font:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:16px;cursor:pointer}
+#ng,#sd{padding:6px 14px;font:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:16px;cursor:pointer}
+.tools{display:flex;gap:8px;justify-content:center;margin-top:8px}
 </style>
 </head>
 <body>
@@ -116,7 +120,7 @@ footer{color:var(--mut);font-size:13px;text-align:center}
  <div class="r2" id="bot"></div>
  <div id="msg"></div>
 </div>
-<button id="ng" type="button">New game</button>
+<div class="tools"><button id="ng" type="button">New game</button><button id="sd" type="button" aria-label="Turn sound on or off">🔊 Sound on</button></div>
 <div id="ov"></div>
 <details class="ab"><summary>About and how to play</summary>
 <h2>Free online Ludo for 2 to 4 players</h2>
@@ -196,7 +200,7 @@ function nextTurn(again){
 
 async function roll(){
  if(busy||over)return;busy=true;die.disabled=true;die.classList.add('roll');
- for(let i=0;i<8;i++){showDie(1+Math.random()*6|0);await sleep(60)}
+ for(let i=0;i<8;i++){sfx.tick();showDie(1+Math.random()*6|0);await sleep(60)}
  val=1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
  if(val<6)six=0;
  if(val==6&&++six==3){say(`${N[turn]} rolled three sixes. Turn lost.`);await sleep(1200);return nextTurn(false)}
@@ -210,21 +214,21 @@ async function roll(){
 
 async function go(t){
  mark(null);const p=turn,d=val;let q=pos[p][t];
- if(q<0){q=0;pos[p][t]=0;layout();await sleep(250)}
- else for(let i=0;i<d;i++){pos[p][t]=++q;layout();await sleep(130)}
+ if(q<0){q=0;pos[p][t]=0;sfx.step();layout();await sleep(250)}
+ else for(let i=0;i<d;i++){pos[p][t]=++q;sfx.step();layout();await sleep(130)}
  let cap=0;
  if(q>=0&&q<=50){const a=(p*13+q)%52;
   if(!S.has(a))pos.forEach((ps,o)=>{if(o!=p)ps.forEach((x,u)=>{if(x>=0&&x<=50&&(o*13+x)%52==a){ps[u]=-1;cap++}})})}
  layout();
  if(pos[p].every(x=>x==56))return win(p);
- const fin=q==56;
+ const fin=q==56;if(cap)sfx.cap();else if(fin)sfx.home();
  if(cap)say(`${N[p]} captured ${cap} token${cap>1?'s':''}! Roll again.`);
  else if(fin)say(`${N[p]} got a token home! Roll again.`);
  else if(d==6)say(`${N[p]} rolled a six. Roll again.`);
  await sleep(cap||fin?800:300);
  nextTurn(d==6||cap>0||fin)}
 
-function win(p){over=true;winP=p;say(`${N[p]} wins!`);showWin(p)}
+function win(p){over=true;winP=p;sfx.win();say(`${N[p]} wins!`);showWin(p)}
 
 function start(){
  pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);turn=-1;six=0;over=false;busy=false;cands=null;started=1;
@@ -285,12 +289,24 @@ function clientMsg(d){
  if(d.t=='full')return note(d.m);
  if(d.t=='seat'){me=d.p;const o=$('ov');o.className='';o.innerHTML='<div class=card><h2>Connected</h2><p class=rules id=wt></p></div>';$('wt').textContent='You are playing '+CN[me]+'. Waiting for the host to start the game…';return}
  if(d.t=='st')apply(d)}
-function apply(s){pos=s.pos;turn=s.turn;N=s.N;seats=s.seats;over=s.over;winP=s.w;
+function apply(s){const mv=JSON.stringify(pos)!=JSON.stringify(s.pos),dc=dies.some((d,i)=>s.dv[i]&&(+d.dataset.v||0)!=s.dv[i]);if(mv)sfx.step();else if(dc)sfx.tick();pos=s.pos;turn=s.turn;N=s.N;seats=s.seats;over=s.over;winP=s.w;
  if(!started){started=1;$('ov').className='off'}
  [0,1,2,3].forEach(i=>{nl[i].textContent=N[i]+(i==me?' (you)':'');pans[i].parentElement.style.visibility=seats[i]?'':'hidden';pans[i].classList.toggle('act',i==turn);showDie(s.dv[i],dies[i]);dies[i].disabled=!(i==me&&i==turn&&s.en)});
  die=dies[turn];$('msg').textContent=s.say;mark(turn==me&&s.c?s.c:null);layout();
  if(s.over&&!$('again'))showWin(s.w)}
 $('ng').onclick=()=>{if(confirm('Start a new game? Current progress will be lost.'))setup()};
+// sounds: synthesized with the Web Audio API, no files needed
+let AC,mute=false;try{mute=localStorage.getItem('ludo-mute')=='1'}catch(e){}
+function ac(){if(mute)return null;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();return AC}catch(e){return null}}
+function tone(f,d,type='sine',v=.15,at=0,f2){const a=ac();if(!a)return;const t=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}
+function rattle(v,f,d){const a=ac();if(!a)return;const n=a.sampleRate*d|0,b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=b;fl.type='bandpass';fl.frequency.value=f*(.7+Math.random()*.6);g.gain.value=v;s.connect(fl).connect(g).connect(a.destination);s.start()}
+const sfx={tick:()=>rattle(.6,2200,.05),step:()=>tone(520,.07,'triangle',.2,0,330),press:()=>tone(800,.05,'square',.05),cap:()=>tone(400,.28,'sawtooth',.12,0,90),home:()=>[660,880,1100].forEach((f,i)=>tone(f,.18,'sine',.15,i*.09)),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.18,i*.14))};
+function sdl(){$('sd').textContent=mute?'🔇 Sound off':'🔊 Sound on'}
+$('sd').onclick=()=>{mute=!mute;try{localStorage.setItem('ludo-mute',mute?'1':'0')}catch(e){}sdl()};sdl();
+document.addEventListener('click',e=>{if(e.target.closest('button:not(.dd),select'))sfx.press()});
+// no pinch or double-tap zoom while playing
+['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault()},{passive:false});
 pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);layout();setup();
 </script>
 </body>
