@@ -101,6 +101,11 @@ footer{color:var(--mut);font-size:13px;text-align:center}
 .ab summary{cursor:pointer;font-weight:700;color:#fff}
 .ab h2{font-size:15px;margin:12px 0 4px;color:#fff}
 .ab p,.ab li{margin:4px 0}
+.card{max-height:92dvh;overflow:auto}
+.sep{border-top:1px solid #3d5a9e;margin:14px 0 10px}
+.go.alt{background:transparent;color:#fff;border:1px solid #3d5a9e}
+.code{font-size:34px;font-weight:700;letter-spacing:.2em;text-align:center;margin:10px 0;color:#f5c518}
+#ng{margin-top:8px;padding:6px 14px;font:inherit;font-size:13px;color:#fff;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.3);border-radius:16px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -111,6 +116,7 @@ footer{color:var(--mut);font-size:13px;text-align:center}
  <div class="r2" id="bot"></div>
  <div id="msg"></div>
 </div>
+<button id="ng" type="button">New game</button>
 <div id="ov"></div>
 <details class="ab"><summary>About and how to play</summary>
 <h2>Free online Ludo for 2 to 4 players</h2>
@@ -120,6 +126,7 @@ footer{color:var(--mut);font-size:13px;text-align:center}
 </details>
 <hr>
 <footer>Copyright © Md Ashraful Hakim Khan Siddiquee · Free for noncommercial use</footer>
+<script async src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const $=id=>document.getElementById(id),sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const CN=['Red','Green','Yellow','Blue'],COL=['#ed1c24','#00a14b','#ffde17','#1b9be0'];
@@ -131,7 +138,7 @@ const Y0=[[0,0],[0,9],[9,9],[9,0]],FIN=[[-.7,0],[0,-.7],[.7,0],[0,.7]];
 const ARR={50:['→',0],11:['↓',1],24:['←',2],37:['↑',3]};
 const PIP={0:[],1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
 const B=$('board');
-let seats=['h','b','b','b'],custom=['','','',''],pos,turn,six,busy,val,over,cands,die;
+let seats=['h','b','b','b'],custom=['','','',''],pos,turn,six,busy,val,over,cands,die,role='local',started=0,me=-1,peer,conn,code,conns=[],bt,winP,lastS;
 
 const pin=c=>`<svg viewBox="0 0 40 60"><ellipse cx="20" cy="50" rx="15" ry="8" fill="${c}" stroke="#7a1f1f" stroke-width="3"/><path d="M20 53C12 42 3 34 3 21a17 17 0 0 1 34 0c0 13-9 21-17 32z" fill="#f2f2f2" stroke="#999" stroke-width="1.5"/><circle cx="20" cy="20" r="10" fill="${c}"/><circle cx="17" cy="16" r="3.5" fill="#fff" opacity=".55"/></svg>`;
 function cell(r,c,bg,txt,col){const d=document.createElement('div');d.className='c';d.style.gridArea=`${r+1}/${c+1}`;if(bg)d.style.background=bg;if(txt)d.textContent=txt;if(col)d.style.color=col;B.appendChild(d)}
@@ -144,15 +151,15 @@ const yxy=(p,t)=>{const[r,c]=Y0[p];return[c+3+(t%2?1.2:-1.2),r+3+(t>1?1.2:-1.2)]
 for(let p=0;p<4;p++)for(let t=0;t<4;t++){const[x,y]=yxy(p,t),s=document.createElement('div');s.className='sp';s.style.background=COL[p];s.style.left=x/15*100+'%';s.style.top=y/15*100+'%';B.appendChild(s)}
 const tokens=[];
 for(let i=0;i<16;i++){const b=document.createElement('button');b.className='t';b.innerHTML=pin(COL[i>>2]);b.setAttribute('aria-label',`${CN[i>>2]} token ${(i&3)+1}`);
- b.onclick=()=>{if(cands&&cands.includes(i&3)&&(i>>2)==turn){const t=i&3;cands=null;go(t)}};B.appendChild(b);tokens.push(b)}
+ b.onclick=()=>{const t=i&3;if(!cands||!cands.includes(t)||(i>>2)!=turn)return;if(role=='client'){if(turn==me)conn.send({t:'mv',k:t});return}if(seats[turn]!='h')return;cands=null;go(t)};B.appendChild(b);tokens.push(b)}
 
 // player panels: red top-left, green top-right, blue bottom-left, yellow bottom-right
 const dies=[],pans=[],nl=[];
 [[0,'top',1],[1,'top',1],[3,'bot',0],[2,'bot',0]].forEach(([p,par,tp])=>{
  const w=document.createElement('div');w.className='pw p'+p+(tp?' tp':'');
  w.innerHTML=`<div class=nm></div><div class="pn${p==1||p==2?' rv':''}"><div class=av>${pin(COL[p])}</div><div class=db><button class="dd e" disabled aria-label="Roll the dice">${'<i></i>'.repeat(9)}</button></div></div>`;
- $(par).appendChild(w);nl[p]=w.firstChild;pans[p]=w.lastChild;dies[p]=w.querySelector('.dd');dies[p].onclick=roll});
-function showDie(v,d=die){const on=PIP[v];d.classList.toggle('e',!v);[...d.children].forEach((e,i)=>e.className=on.includes(i)?'on':'')}
+ $(par).appendChild(w);nl[p]=w.firstChild;pans[p]=w.lastChild;dies[p]=w.querySelector('.dd');dies[p].onclick=()=>role=='client'?conn.send({t:'roll'}):roll()});
+function showDie(v,d=die){const on=PIP[v];d.dataset.v=v;bc();d.classList.toggle('e',!v);[...d.children].forEach((e,i)=>e.className=on.includes(i)?'on':'')}
 
 function xy(p,t){const q=pos[p][t];
  if(q<0)return yxy(p,t);
@@ -165,9 +172,9 @@ function layout(){const g={},pt=[];
  tokens.forEach((el,i)=>{const[x,y,k]=pt[i],a=g[k],n=a.length,j=a.indexOf(i);let dx=0,dy=0,s=1;
   if(n>1){s=.7;[dx,dy]=O[j%4];dx+=(j>>2)*.06}
   if(pos[i>>2][i&3]==56)s=Math.min(s,.6);
-  el.style.left=(x+dx)/15*100+'%';el.style.top=(y+dy)/15*100+'%';el.style.setProperty('--s',s);el.style.zIndex=5+Math.round(y+dy)})}
-function mark(c){cands=c;tokens.forEach((el,i)=>el.classList.toggle('can',!!c&&(i>>2)==turn&&c.includes(i&3)))}
-const say=s=>$('msg').textContent=s;
+  el.style.left=(x+dx)/15*100+'%';el.style.top=(y+dy)/15*100+'%';el.style.setProperty('--s',s);el.style.zIndex=5+Math.round(y+dy)});bc()}
+function mark(c){cands=c;bc();tokens.forEach((el,i)=>el.classList.toggle('can',!!c&&(i>>2)==turn&&c.includes(i&3)))}
+const say=s=>{$('msg').textContent=s;bc()};
 
 function legal(p,d){return[0,1,2,3].filter(t=>{const q=pos[p][t];return q<0?d==6:q+d<=56})}
 function score(p,t,d){const q=pos[p][t];if(q<0)return 50;const n=q+d;let s=n*.5;
@@ -181,11 +188,11 @@ function score(p,t,d){const q=pos[p][t];if(q<0)return 50;const n=q+d;let s=n*.5;
 
 function nextTurn(again){
  if(!again){six=0;do turn=(turn+1)%4;while(!seats[turn])}
- busy=false;const h=seats[turn]=='h';die=dies[turn];if(die.classList.contains('e'))showDie(1);
+ busy=false;const h=seats[turn]=='h',rm=seats[turn]=='r';die=dies[turn];if(die.classList.contains('e'))showDie(1);
  pans.forEach((e,i)=>e.classList.toggle('act',i==turn));
  dies.forEach((d,i)=>d.disabled=!(i==turn&&h));
- say(h?`${N[turn]}, roll the dice`:`${N[turn]} is rolling`);
- if(!h)setTimeout(roll,800)}
+ say(h||rm?`${N[turn]}, roll the dice`:`${N[turn]} is rolling`);
+ if(!h&&!rm)setTimeout(roll,800)}
 
 async function roll(){
  if(busy||over)return;busy=true;die.disabled=true;die.classList.add('roll');
@@ -217,22 +224,20 @@ async function go(t){
  await sleep(cap||fin?800:300);
  nextTurn(d==6||cap>0||fin)}
 
-function win(p){over=true;dies.forEach(d=>d.disabled=true);say(`${N[p]} wins!`);
- $('ov').className='';$('ov').innerHTML=`<div class=card><h2 style="color:${COL[p]}"></h2><p class=rules>All four tokens reached home.</p><button class=go id=again>New game</button></div>`;
- $('ov').querySelector('h2').textContent=N[p]+' wins';$('again').onclick=setup}
+function win(p){over=true;winP=p;say(`${N[p]} wins!`);showWin(p)}
 
 function start(){
- pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);turn=-1;six=0;over=false;busy=false;cands=null;
+ pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);turn=-1;six=0;over=false;busy=false;cands=null;started=1;
  dies.forEach(d=>showDie(0,d));
  [0,1,2,3].forEach(i=>{nl[i].textContent=N[i];pans[i].parentElement.style.visibility=seats[i]?'':'hidden'});
  $('ov').className='off';layout();mark(null);nextTurn(false)}
 
 function ref(){let h=0,b=0;[0,1,2,3].forEach(i=>{const v=$('s'+i).value,e=$('n'+i);
  if(v=='h'){e.disabled=false;e.placeholder='Player '+(++h)}
- else{e.disabled=true;e.value='';e.placeholder=v=='b'?'Bot '+(++b):'Off'}})}
+ else{e.disabled=true;e.value='';e.placeholder=v=='b'?'Bot '+(++b):v=='r'?'Friend joins by code':'Off'}})}
 function setup(){
- $('ov').className='';
- $('ov').innerHTML=`<div class=card><h2>Ludo</h2><p class=rules>Choose who plays each color. Humans can type a name. Rules: roll a 6 to leave the yard. A six, a capture or a token reaching home gives another roll. Three sixes in a row lose the turn. Stars and start squares are safe. Home needs an exact roll.</p>${[0,1,2,3].map(i=>`<div class=row><span class=sw style="background:${COL[i]}"></span><input id=n${i} maxlength=14 aria-label="${CN[i]} name"><select id=s${i} aria-label="${CN[i]} player"><option value=h>Human<option value=b>Bot<option value=0>Off</select></div>`).join('')}<button class=go id=go>Start game</button><p id=err></p></div>`;
+ leave();started=0;$('ov').className='';
+ $('ov').innerHTML=`<div class=card><h2>Ludo</h2><p class=rules>Choose who plays each color. Humans can type a name. Rules: roll a 6 to leave the yard. A six, a capture or a token reaching home gives another roll. Three sixes in a row lose the turn. Stars and start squares are safe. Home needs an exact roll.</p>${[0,1,2,3].map(i=>`<div class=row><span class=sw style="background:${COL[i]}"></span><input id=n${i} maxlength=14 aria-label="${CN[i]} name"><select id=s${i} aria-label="${CN[i]} player"><option value=h>Human<option value=b>Bot<option value=r>Online<option value=0>Off</select></div>`).join('')}<button class=go id=go>Start game</button><div class=sep></div><b>Join a friend’s game</b><div class=row><input id=jc maxlength=5 placeholder="Room code" autocapitalize=characters><input id=jn maxlength=14 placeholder="Your name"></div><button class="go alt" id=jb>Join game</button><p id=err></p></div>`;
  [0,1,2,3].forEach(i=>{const s=$('s'+i);s.value=seats[i]||'0';s.onchange=ref;});
  ref();[0,1,2,3].forEach(i=>{if(seats[i]=='h')$('n'+i).value=custom[i]});
  $('go').onclick=()=>{const v=[0,1,2,3].map(i=>$('s'+i).value);
@@ -240,7 +245,52 @@ function setup(){
   seats=v.map(x=>x=='0'?0:x);
   custom=[0,1,2,3].map(i=>seats[i]=='h'?$('n'+i).value.trim():'');
   N=[0,1,2,3].map(i=>custom[i]||$('n'+i).placeholder);
-  start()}}
+  seats.includes('r')?host():start()};
+ $('jb').onclick=()=>join($('jc').value,$('jn').value)}
+function showWin(p){dies.forEach(d=>d.disabled=true);const o=$('ov');o.className='';o.innerHTML='<div class=card><h2></h2><p class=rules>All four tokens reached home.</p><button class=go id=again>New game</button></div>';const h=o.querySelector('h2');h.style.color=COL[p];h.textContent=N[p]+' wins';$('again').onclick=setup}
+function note(m){const o=$('ov');o.className='';o.innerHTML='<div class=card><p id=nt></p><button class=go id=bk>Back to menu</button></div>';$('nt').textContent=m;$('bk').onclick=setup}
+function leave(){const r=role;role='local';try{peer&&peer.destroy()}catch(e){}peer=conn=null;conns=[];me=-1;if(r=='client')seats=['h','b','b','b']}
+// online play: the host runs the game, friends send their taps and get the board state back
+function bc(){if(role!='host'||bt)return;bt=setTimeout(()=>{bt=0;const s={t:'st',pos,turn,N,seats,say:$('msg').textContent,dv:dies.map(d=>+d.dataset.v||0),c:cands,over,w:winP,en:!busy&&!over},j=JSON.stringify(s);if(j==lastS)return;lastS=j;conns.forEach(c=>c&&c.open&&c.send(s))},30)}
+function host(){if(typeof Peer=='undefined'){$('err').textContent='Online play could not load. Check your internet connection and reload.';return}
+ role='host';conns=[];lastS='';code=Array.from({length:5},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[Math.random()*32|0]).join('');
+ $('err').textContent='Creating room…';peer=new Peer('khanludo-'+code);
+ peer.on('open',lobby);
+ peer.on('connection',c=>{c.on('data',d=>hostMsg(c,d));c.on('close',()=>drop(c))});
+ peer.on('error',e=>{if(role=='host')note(e.type=='unavailable-id'?'Could not create the room. Please try again.':'Connection problem ('+e.type+'). Please try again.')})}
+function lobby(){const o=$('ov');o.className='';o.innerHTML='<div class=card><h2>Online game</h2><p class=rules>Share this room code. Friends open the game, choose Join a friend’s game and type it.</p><div class=code></div><div id=lst></div><button class=go id=st>Start game</button><p class=rules>Online seats that nobody joins become bots.</p><button class="go alt" id=cx>Cancel</button></div>';
+ o.querySelector('.code').textContent=code;lupd();
+ $('st').onclick=()=>{[0,1,2,3].forEach(i=>{if(seats[i]=='r'&&!conns[i]){seats[i]='b';N[i]='Bot '+(i+1)}});start()};$('cx').onclick=setup}
+function lupd(){const l=$('lst');if(!l)return;l.textContent='';seats.forEach((s,i)=>{if(s!='r')return;const r=document.createElement('div'),w=document.createElement('span'),t=document.createElement('span');r.className='row';w.className='sw';w.style.background=COL[i];t.textContent=conns[i]?N[i]+' joined':'Waiting for a friend…';r.append(w,t);l.append(r)})}
+function hostMsg(c,d){
+ if(d.t=='hi'){if(started){c.send({t:'full',m:'That game has already started.'});return}
+  const p=seats.findIndex((x,i)=>x=='r'&&!conns[i]);if(p<0){c.send({t:'full',m:'That room is full.'});return}
+  conns[p]=c;c.p=p;N[p]=String(d.name||'').trim().slice(0,14)||'Friend';c.send({t:'seat',p});lupd();return}
+ if(c.p!==turn||seats[turn]!='r'||conns[turn]!==c||over)return;
+ if(d.t=='roll'&&!busy)roll();
+ else if(d.t=='mv'&&cands&&cands.includes(d.k)){cands=null;go(d.k)}}
+function drop(c){const p=c.p;if(p==null||conns[p]!==c)return;conns[p]=null;
+ if(!started){N[p]='Friend joins by code';lupd();return}
+ seats[p]='b';N[p]+=' (bot)';nl[p].textContent=N[p];layout();
+ if(turn==p&&!over){if(cands){const m=cands;cands=null;go(m.reduce((a,b)=>score(p,b,val)>score(p,a,val)?b:a))}else if(!busy)setTimeout(roll,600)}}
+function join(rc,name){rc=String(rc).trim().toUpperCase();
+ if(rc.length!=5){$('err').textContent='Enter the 5-character room code.';return}
+ if(typeof Peer=='undefined'){$('err').textContent='Online play could not load. Check your internet connection and reload.';return}
+ role='client';me=-1;$('err').textContent='Connecting…';peer=new Peer();
+ peer.on('open',()=>{conn=peer.connect('khanludo-'+rc,{reliable:true});
+  conn.on('open',()=>conn.send({t:'hi',name}));conn.on('data',clientMsg);
+  conn.on('close',()=>{if(role=='client'&&!over)note('The host left the game.')})});
+ peer.on('error',e=>{if(role=='client')note(e.type=='peer-unavailable'?'Room not found. Check the code and try again.':'Connection problem ('+e.type+').')})}
+function clientMsg(d){
+ if(d.t=='full')return note(d.m);
+ if(d.t=='seat'){me=d.p;const o=$('ov');o.className='';o.innerHTML='<div class=card><h2>Connected</h2><p class=rules id=wt></p></div>';$('wt').textContent='You are playing '+CN[me]+'. Waiting for the host to start the game…';return}
+ if(d.t=='st')apply(d)}
+function apply(s){pos=s.pos;turn=s.turn;N=s.N;seats=s.seats;over=s.over;winP=s.w;
+ if(!started){started=1;$('ov').className='off'}
+ [0,1,2,3].forEach(i=>{nl[i].textContent=N[i]+(i==me?' (you)':'');pans[i].parentElement.style.visibility=seats[i]?'':'hidden';pans[i].classList.toggle('act',i==turn);showDie(s.dv[i],dies[i]);dies[i].disabled=!(i==me&&i==turn&&s.en)});
+ die=dies[turn];$('msg').textContent=s.say;mark(turn==me&&s.c?s.c:null);layout();
+ if(s.over&&!$('again'))showWin(s.w)}
+$('ng').onclick=()=>{if(confirm('Start a new game? Current progress will be lost.'))setup()};
 pos=[0,1,2,3].map(()=>[-1,-1,-1,-1]);layout();setup();
 </script>
 </body>
