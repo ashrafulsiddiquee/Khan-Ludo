@@ -200,7 +200,7 @@ function nextTurn(again){
 
 async function roll(){
  if(busy||over)return;busy=true;die.disabled=true;die.classList.add('roll');
- for(let i=0;i<8;i++){sfx.tick();showDie(1+Math.random()*6|0);await sleep(60)}
+ sfx.roll();for(let i=0;i<8;i++){showDie(1+Math.random()*6|0);await sleep(60)}
  val=1+Math.random()*6|0;showDie(val);die.classList.remove('roll');
  if(val<6)six=0;
  if(val==6&&++six==3){say(`${N[turn]} rolled three sixes. Turn lost.`);await sleep(1200);return nextTurn(false)}
@@ -294,7 +294,7 @@ function clientMsg(d){
  if(d.t=='full')return note(d.m);
  if(d.t=='seat'){me=d.p;clearTimeout(jt);const o=$('ov');o.className='';o.innerHTML='<div class=card><h2>Connected</h2><p class=rules id=wt></p></div>';$('wt').textContent='You are playing '+CN[me]+'. Waiting for the host to start the game…';return}
  if(d.t=='st')apply(d)}
-function apply(s){const mv=JSON.stringify(pos)!=JSON.stringify(s.pos),dc=dies.some((d,i)=>s.dv[i]&&(+d.dataset.v||0)!=s.dv[i]);if(mv)sfx.step();else if(dc)sfx.tick();pos=s.pos;turn=s.turn;N=s.N;seats=s.seats;over=s.over;winP=s.w;
+function apply(s){const mv=JSON.stringify(pos)!=JSON.stringify(s.pos),dc=dies.some((d,i)=>s.dv[i]&&(+d.dataset.v||0)!=s.dv[i]);if(mv)sfx.step();else if(dc)sfx.roll();pos=s.pos;turn=s.turn;N=s.N;seats=s.seats;over=s.over;winP=s.w;
  if(!started){started=1;$('ov').className='off'}
  [0,1,2,3].forEach(i=>{nl[i].textContent=N[i]+(i==me?' (you)':'');pans[i].parentElement.style.visibility=seats[i]?'':'hidden';pans[i].classList.toggle('act',i==turn);showDie(s.dv[i],dies[i]);dies[i].disabled=!(i==me&&i==turn&&s.en)});
  die=dies[turn];$('msg').textContent=s.say;mark(turn==me&&s.c?s.c:null);layout();
@@ -304,8 +304,10 @@ $('ng').onclick=()=>{if(confirm('Start a new game? Current progress will be lost
 let AC,mute=false;try{mute=localStorage.getItem('ludo-mute')=='1'}catch(e){}
 function ac(){if(mute)return null;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();if(AC.state=='suspended')AC.resume();return AC}catch(e){return null}}
 function tone(f,d,type='sine',v=.15,at=0,f2){const a=ac();if(!a)return;const t=a.currentTime+at,o=a.createOscillator(),g=a.createGain();o.type=type;o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g).connect(a.destination);o.start(t);o.stop(t+d+.02)}
-function rattle(v,f,d){const a=ac();if(!a)return;const n=a.sampleRate*d|0,b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*(1-i/n);const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=b;fl.type='bandpass';fl.frequency.value=f*(.7+Math.random()*.6);g.gain.value=v;s.connect(fl).connect(g).connect(a.destination);s.start()}
-const sfx={tick:()=>rattle(.6,2200,.05),step:()=>tone(520,.07,'triangle',.2,0,330),press:()=>tone(800,.05,'square',.05),cap:()=>tone(400,.28,'sawtooth',.12,0,90),home:()=>[660,880,1100].forEach((f,i)=>tone(f,.18,'sine',.15,i*.09)),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.18,i*.14))};
+function clack(v,f,d,at){const a=ac();if(!a)return;const t=a.currentTime+at,n=a.sampleRate*d|0,b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(let i=0;i<n;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource(),fl=a.createBiquadFilter(),g=a.createGain();s.buffer=b;fl.type='lowpass';fl.frequency.value=f;g.gain.value=v;s.connect(fl).connect(g).connect(a.destination);s.start(t);tone(150+Math.random()*50,.06,'sine',v*.5,at,70)}
+let lastRoll=0;
+function diceRoll(){const n=Date.now();if(n-lastRoll<500)return;lastRoll=n;[0,.07,.15,.25,.37,.5].forEach((at,i)=>clack(.2*(1-i*.14),800+Math.random()*400,.05,at))}
+const sfx={roll:diceRoll,step:()=>tone(520,.07,'triangle',.2,0,330),press:()=>tone(800,.05,'square',.05),cap:()=>tone(400,.28,'sawtooth',.12,0,90),home:()=>[660,880,1100].forEach((f,i)=>tone(f,.18,'sine',.15,i*.09)),win:()=>[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',.18,i*.14))};
 function sdl(){$('sd').textContent=mute?'🔇 Sound off':'🔊 Sound on'}
 $('sd').onclick=()=>{mute=!mute;try{localStorage.setItem('ludo-mute',mute?'1':'0')}catch(e){}sdl()};sdl();
 document.addEventListener('click',e=>{if(e.target.closest('button:not(.dd),select'))sfx.press()});
