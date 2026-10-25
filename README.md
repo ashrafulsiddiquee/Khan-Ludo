@@ -1,32 +1,138 @@
-# Ludo
+# Khan Ludo — Free 4-Player Ludo Game (Ludo King Style Rules)
 
-Free 4-player Ludo game with **Ludo King style rules**. It runs in the browser from a single `index.html` file, with no install, no backend and no dependencies.
+[![GitHub Pages](https://img.shields.io/badge/Hosted_With-GitHub_Pages-22c55e?style=for-the-badge&logo=github)](https://pages.github.com/)
+[![Players](https://img.shields.io/badge/Players-2_to_4-blue?style=for-the-badge)](#-core-features--game-engines)
+[![Platforms](https://img.shields.io/badge/Platforms-Mobile_%7C_iPad_%7C_Laptop-indigo?style=for-the-badge)](#-core-features--game-engines)
+[![License: All Rights Reserved](https://img.shields.io/badge/License-All_Rights_Reserved-red?style=for-the-badge)](LICENSE)
 
-**Play online:** [https://ashrafulsiddiquee.github.io/Khan-Ludo/](https://ashrafulsiddiquee.github.io/Khan-Ludo/)
+> **Live Web Application:** [https://ashrafulsiddiquee.github.io/Khan-Ludo/](https://ashrafulsiddiquee.github.io/Khan-Ludo/)
 
-## Features
+---
 
-- 2 to 4 players: choose Human, Bot or Off for each color
-- Human players can type their own name (default Player 1, 2, 3; bots are Bot 1, 2, 3)
-- Pass-and-play on one device, play against computer bots, or play online with friends using a 5-letter room code
-- A New game button during play
-- Sound effects for dice, token moves, captures and button presses, with a sound on/off button
-- Pinch and double-tap zoom are turned off so the board doesn't jump around on phones and tablets
-- Animated dice, token movement and captures
-- Responsive layout for mobile, iPad and laptop, in portrait and landscape
-- Single file, works offline once loaded
+## 📖 Overview
 
-## Rules (Ludo King style)
+**Khan Ludo** is a free, fast, and responsive Ludo board game for **2 to 4 players** that follows **Ludo King style rules**. Play with friends on one device, challenge computer bots, or play online with a friend using a simple **5-letter room code**.
 
-- Roll a 6 to bring a token out of the yard.
-- A 6, a capture, or getting a token home gives you another roll.
-- Three 6s in a row lose your turn.
-- Stars and start squares are safe: tokens on them cannot be captured.
-- You need an exact roll to reach home.
-- The first player to bring all 4 tokens home wins.
+The entire game runs client-side in the browser from a single `index.html` file. It requires no installation, no sign-up, and no backend server, and it is built to run directly on **GitHub Pages**.
 
-## License
+---
 
-Copyright © 2026 Md Ashraful Hakim Khan Siddiquee. All rights reserved. Free for noncommercial use. See [LICENSE](LICENSE).
+## 📊 Game Overview
 
-Ludo King is a trademark of its respective owner. This project is independent and is not affiliated with it.
+| Metric | Details |
+| :--- | :--- |
+| **Players** | 2 to 4 (Red, Green, Yellow, Blue) |
+| **Tokens** | 4 per player, 16 in total |
+| **Board** | 15×15 grid with a 52-square loop and a 5-square home column per color |
+| **Player Types** | Human · Bot · Online friend · Off |
+| **Play Modes** | Pass-and-play · Versus bots · Online with room code |
+| **Screens** | Phone · iPad/tablet · Laptop (portrait and landscape) |
+| **Sound** | Dice, token moves, captures, button presses (synthesized, no audio files) |
+
+---
+
+## ✨ Core Features & Game Engines
+
+### 1. Ludo King Style Rules
+- Roll a **6** to bring a token out of the yard.
+- A **6**, a **capture**, or getting a token **home** gives you another roll.
+- **Three 6s in a row** lose your turn.
+- **Stars and start squares are safe**: tokens on them cannot be captured.
+- You need an **exact roll** to reach home.
+- The **first player to bring all 4 tokens home wins**.
+
+### 2. Flexible Players & Custom Names
+- Choose **Human**, **Bot**, **Online**, or **Off** for each color on the start screen (at least two players).
+- Human players can **type their own name**. Defaults are *Player 1, 2, 3*, and bots are *Bot 1, 2, 3*.
+- Each player has their own **dice panel**, and the active player's panel glows.
+
+### 3. Computer Bots
+- Bots prefer to **capture** opponent tokens, **reach home**, land on **safe squares**, and **escape danger**.
+- Tokens you can move glow and bounce, and the game moves automatically when there is only one legal move.
+
+### 4. Online Multiplayer with a Room Code
+- The host sets a color to **Online**, gets a **5-letter room code**, and shares it.
+- Friends choose **Join a friend’s game**, type the code and their name, and play from their own device with their own dice.
+- Online seats that nobody joins become bots, and if a friend leaves mid-game their color becomes a bot so the game keeps going.
+- Connections are peer-to-peer (WebRTC via PeerJS), so no game server is needed.
+
+### 5. Responsive on Every Device
+- **Portrait (phone, iPad):** dice panels sit in the four corners around the board.
+- **Landscape (laptop, iPad sideways):** two panels sit on each side of the board.
+- The board scales automatically to fit the screen.
+
+### 6. Sound Effects
+- Dice rattle, token step, capture, home, win, and button-press sounds, all generated by the **Web Audio API**.
+- A **Sound on/off** button remembers your choice.
+
+### 7. Touch-Friendly Controls
+- Pinch-zoom and double-tap zoom are turned off, so the board never jumps around while you play.
+- A **New game** button is available during play.
+
+### 8. Installable & Shareable
+- **Add to Home Screen** on iPhone, iPad, and Android with the Khan Ludo icon and app name.
+- Logo shown in the browser tab, and as a large preview image when the link is shared on social media.
+
+---
+
+## 🎮 How to Play
+
+1. Open the game and choose who plays each color (Human, Bot, Online, or Off).
+2. Type names for the human players, then tap **Start game**.
+3. On your turn, tap your dice to roll.
+4. Tap a glowing token to move it. If only one move is possible, it moves automatically.
+5. Capture opponents, stay on safe squares, and bring all four tokens home first.
+
+---
+
+## 💻 Technology Stack
+
+- **Markup & Layout:** Semantic HTML5, CSS Grid, and Flexbox
+- **Styling & UI:** Custom CSS with responsive units and portrait/landscape layouts
+- **Programming Language:** Vanilla Modern JavaScript (ES6+), single file, no framework
+- **Audio Engine:** Browser Web Audio API (synthesized sounds)
+- **Online Play:** [PeerJS](https://peerjs.com/) (WebRTC peer-to-peer connections)
+- **Storage:** `localStorage` for the sound setting only
+
+---
+
+## 🗂️ Project Structure
+
+| File | Purpose |
+| :--- | :--- |
+| `index.html` | The complete game (HTML, CSS, JavaScript) |
+| `img/` | Logo, favicons, app icons, and the social share image |
+| `manifest.webmanifest` | Add to Home Screen settings |
+| `favicon.ico` | Browser tab icon |
+| `robots.txt`, `sitemap.xml` | Search engine files |
+| `LICENSE` | Copyright and usage terms |
+
+---
+
+## ❓ Frequently Asked Questions (FAQ)
+
+### Can I play without an internet connection?
+**Partly.** Once the page is open, pass-and-play and games against bots run entirely in your browser. Online rooms need an internet connection.
+
+### How does online play work?
+One player hosts the game, and friends join with the 5-letter room code. The host's device runs the game, so the host should keep the page open until the game ends. If the host leaves, the others see a "host left" message.
+
+### Why can't my friend connect?
+Some strict school, office, or mobile networks block peer-to-peer connections. Try a different network, such as home Wi-Fi, or check that the room code is typed correctly.
+
+### Is my data stored on an external server?
+**No.** There are no accounts, cookies, or databases. The only thing saved is your sound on/off choice, in your browser's local storage. In online games, the PeerJS public service only helps devices find each other, and the game moves go directly between the players.
+
+### Why can't I zoom in?
+Zoom is turned off on purpose, because double-taps while playing used to zoom the board in and out on phones and tablets.
+
+### Is this affiliated with Ludo King?
+**No.** This is an independent game with original artwork. Ludo King is a trademark of its respective owner.
+
+---
+
+## 📄 License & Copyright
+
+**Copyright © Md Ashraful Hakim Khan Siddiquee. All rights reserved.**
+
+This project and its original software code are proprietary. It is free for noncommercial use, but unauthorized reproduction, distribution, or commercial use without explicit written consent from the author is strictly prohibited. See [LICENSE](LICENSE).
