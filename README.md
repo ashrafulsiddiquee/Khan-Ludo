@@ -2,7 +2,7 @@
 
 Free 4-player Ludo game. It runs in the browser from a single `index.html` file, with no install, no backend and no dependencies.
 
-**Play online:** `https://YOUR-USERNAME.github.io/YOUR-REPO/`
+**Play online:** `https://ashrafulsiddiquee.github.io/Khan-Ludo/`
 
 ## Features
 
