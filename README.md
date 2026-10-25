@@ -2,7 +2,7 @@
 
 Free 4-player Ludo game with **Ludo King style rules**. It runs in the browser from a single `index.html` file, with no install, no backend and no dependencies.
 
-**Play online:** `https://ashrafulsiddiquee.github.io/Khan-Ludo/`
+**Play online:** [https://ashrafulsiddiquee.github.io/Khan-Ludo/](https://ashrafulsiddiquee.github.io/Khan-Ludo/)
 
 ## Features
 
@@ -22,22 +22,7 @@ Free 4-player Ludo game with **Ludo King style rules**. It runs in the browser f
 - You need an exact roll to reach home.
 - The first player to bring all 4 tokens home wins.
 
-## Publish on GitHub Pages
 
-1. Create a repository and upload `index.html`, `README.md`, `LICENSE`, `robots.txt`, `sitemap.xml`, `manifest.webmanifest`, `favicon.ico` and the `img/` folder.
-2. Open **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**, select `main` and `/ (root)`, then save.
-4. After a minute or two the game is live at the address shown on that page.
-
-For the repository description, use:
-
-> Free 4-player Ludo game in a single HTML file with Ludo King style rules. Play with friends or bots on mobile, iPad and laptop.
-
-Suggested topics: `ludo`, `ludo-king`, `board-game`, `html5-game`, `javascript`, `github-pages`.
-
-## SEO
-
-`index.html` includes a title, meta description, keywords, Open Graph and Twitter tags, a favicon, structured data (schema.org `VideoGame`), a hidden `h1` and a short readable "About and how to play" section. After publishing, add the site to Google Search Console and submit `sitemap.xml`.
 
 ## License
 
